@@ -1,23 +1,39 @@
 # -----------------------------------------------
 # Submitted By: Reid Santiago
 # Homework Number: Final Project
-# Credit to:
-#      <Name or names>
+# Credit to: 
+# 	     Professor Behi, Aaron Van De Brook, and my classmates
 #
-# Submitted On: <Date>
+# Submitted On: 6/24/2021
 #
 # By submitting this program with my name,
 # I affirm that the creation and modification
 # of this program is primarily my own work.
 # ------------------------------------------------
 
-from turtle import *
+#This program is a "racing game" which the user can access with a password.
+#Upon being granted access, the user is given the choice of playing Manual
+#mode or Automatic mode. Manual features two racers against each other,
+#while Automatic pits four in an automatic free-for-all race.
+#The program pulls its racer names and numbers from the pycar.txt file
+#and writes its respective winners in the pyraceresults.txt file.
+#Once the race finishes, it will ask the user if they wish to race again.
+
+#First we import the random function to be used in the race functions.
+#We also name variables which will define the parameters of our races.
+#Note that there are two different maximums numbers of racers. This is because
+#each variable is for a different game mode.
 import random
-maxracers = 4
+maxracers = 2
+maxracers2 = 4
 minracers = 1
-minspeed = 1
+speedmin = 1
 topspeed = 10
 speedway = 90
+
+#The game is unlocked via the password "Racer101." The user has
+#indefinite attempts to get this right, but they cannot access
+#the game without the right password.
 
 def password():
     passcode = ""
@@ -32,42 +48,68 @@ def password():
 
     if passcode == "Racer101":
         print("Welcome, racer.")
-        main()
+        #The correct password sends the user to game mode selection.
+        mode_select()
 
-def main():
-    competitors = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
-    standing = [0,0,0,0]
-    standingnum = ['','','','']
-    racerimport(competitors)
-    racelive(standing, standingnum, competitors)
-    standingsort(standing,standingnum)
-    scoreboard(standing,standingnum)
-    carpath(standing,standingnum)
+#Once the password is entered correctly, the user must
+#choose which game mode they wish to play.
+def mode_select():
+    mode = ""
+    print("Please select the game mode you would like to play.")
 
+    while mode != "Automatic" or "Manual":
+        mode = input("Type Manual or Automatic: ")
 
-def racerimport(competitors):
-    pycar_text = open('pycar.txt.','r')
+        if (mode == "Manual"):
+            main_manual()
+            break
+
+        if (mode == "Automatic"):
+            main_automatic()
+            break
+
+#Here is the main function for manual mode, calling all other
+#needed functions within.
+def main_manual():
+    listcars = [[0,0,0,0],[0,0,0,0]]
+    standing = [0,0]
+    standingnum = ['','']
+    carimport(listcars)
+    racelive(standing, standingnum, listcars)
+    liststandings(standing, standingnum)
+    scoreboard (standing, standingnum)
+    racepath(standing, standingnum)
+
+#The Car Import function pulls car names and numbers from
+#the pycar.txt file.
+def carimport(listcars):
+    race_file = open('pycar.txt','r')
 
     for counter in range(maxracers):
-        competitors[counter] = (pycar_text.readline()).split()
+        listcars[counter] = (race_file.readline()).split()
 
-        
+    race_file.close()
 
-def racelive(standing, standingnum, competitors):
-    end = 0
+#Race Live is the funciton which actually runs the race.
+#It uses a random number generator to randomly determine
+#the speeds of the cars and thus who wins the race.
+def racelive(standing, standingnum, listcars):
+    finish = 0
 
-    while (end == 0):
-        randomracer = random.randint(minracers-1, maxracers-1)
-        speed = random.randint(minspeed, topspeed)
-        standing[randomracer] += speed
-        standingnum[randomracer] = competitors[randomracer][0]
-        print(standing[randomracer],standingnum[randomracer])
-        if standing[randomracer] >= speedway:
-            end = 1
-            print(standing[randomracer], randomracer)
+    while (finish == 0):
+        whichCar = random.randint(minracers-1, maxracers-1)
+        speed = random.randint(speedmin, topspeed)
+        standing[whichCar] += speed
+        standingnum[whichCar] = listcars[whichCar][0]
+        if standing[whichCar] >= speedway:
+            finish = 1
 
-def standingsort(standing, standingnum):
-    for i in range(maxracers):
+#List Standinds is the function which determines the
+#place each car achieved in the race, assigning numebers
+#to first and second so they can be sent to the file in
+#in the next function.
+def liststandings(standing, standingnum):
+    for i in range (maxracers):
         for j in range(i + 1, maxracers):
             if(standing[i] < standing[j]):
                 holdplace = standing[i]
@@ -77,17 +119,92 @@ def standingsort(standing, standingnum):
                 standing[j] = holdplace
                 standingnum[j] = holdplacenum
 
-def scoreboard(standing,standingnum):
-    final_score = open('pyraceresult.txt.','w')
+#Scoreboard writes the driver standings to the
+#pyraceresult.txt file.
+def scoreboard (standing, standingnum):
+    final_score = open('pyraceresult.txt', 'w')
     for i in range(maxracers):
         final_score.write(standingnum[i] + ' #' + str(i+1)+'\n')
 
-def carpath(standing,standingnum):
+#Finally, Race Path is what actually visually shows
+#the path of the cars using asterisks.
+def racepath (standing, standingnum):
     for i in range(maxracers):
-        print(standing[i] + ' ', end = '')
+        print (standingnum[i] + ' ', end ='')
         for j in range(standing[i]):
             print('*', end = '')
+        print()
 
+#This is the main function for automatic mode. It features
+#all the same functions as manual mode but modified to accomdate
+#four racecars. Each of these lists and functions have a "2" at the end
+#to differentiate them from their manual counterparts.
 
+#I won't explain each one for the sake of redundancy.
+
+def main_automatic():
+    listcars2 = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+    standing2 = [0,0,0,0]
+    standingnum2 = ['','','','']
+    carimport2(listcars2)
+    racelive2(standing2, standingnum2, listcars2)
+    liststandings2(standing2, standingnum2)
+    scoreboard2 (standing2, standingnum2)
+    racepath2(standing2, standingnum2)
+    
+
+def carimport2(listcars2):
+    
+    race_file2 = open('pycar.txt','r')
+
+    for counter in range(maxracers2):
+        listcars2[counter] = (race_file2.readline()).split()
+
+    race_file2.close()
+
+def racelive2(standing2, standingnum2, listcars2):
+    finish2 = 0
+
+    while (finish2 == 0):
+        whichCar2 = random.randint(minracers-1, maxracers2-1)
+        speed = random.randint(speedmin, topspeed)
+        standing2[whichCar2] += speed
+        standingnum2[whichCar2] = listcars2[whichCar2][0]
+        if standing2[whichCar2] >= speedway:
+            finish2 = 1
+
+def liststandings2(standing2, standingnum2):
+    for i in range (maxracers2):
+        for j in range(i + 1, maxracers2):
+            if(standing2[i] < standing2[j]):
+                holdplace2 = standing2[i]
+                holdplacenum2 = standingnum2[i]
+                standing2[i] = standing2[j]
+                standingnum2[i] = standingnum2[j]
+                standing2[j] = holdplace2
+                standingnum2[j] = holdplacenum2
+
+def scoreboard2 (standing2, standingnum2):
+    final_score2 = open('pyraceresult.txt', 'w')
+    for i in range(maxracers2):
+        final_score2.write(standingnum2[i] + ' #' + str(i+1)+'\n')
+
+def racepath2 (standing2, standingnum2):
+    for i in range(maxracers2):
+        print (standingnum2[i] + ' ', end ='')
+        for j in range(standing2[i]):
+            print('*', end = '')
+        print()
+
+#The program opens with the password function which, upon
+#successful completion, will begin the game.
 password()
-main()
+
+#The loop below is what offers the user the option to race
+#again each time they complete the game.
+while True:
+    if input("Would you like to race again? (Y/N)").strip().upper() == 'Y':
+        mode_select()
+    if input("Would you like to race again? (Y/N)").strip().upper() == 'N':
+        break
+
